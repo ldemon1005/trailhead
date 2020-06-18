@@ -1,0 +1,109 @@
+<aura:component controller="SobjectLookupController" access="global">
+    <!-- ATTRIBUTES TO WHICH VALUES HAS TO BE PASSED FROM CONTAINER COMPONENT -->
+    <aura:attribute type="String" name="selectedId" required="true"/>
+    <aura:attribute type="String" name="selectedLabel" required="true"/>  
+    <aura:attribute type="String" name="objName" required="true"/> 
+    <aura:attribute type="String" name="lookupId" required="true"/>    
+	<aura:attribute type="String" name="fieldLabel"/> 
+    <aura:attribute type="Boolean" name="isRequired" default="false"/>
+    <aura:attribute name="searchPlaceholder" type="String" default="Type to search" description="Optional"/>
+    <!-- /ATTRIBUTES TO WHICH VALUES HAS TO BE PASSED FROM CONTAINER COMPONENT -->
+    
+    <!-- ATTRIBUTES USED FOR INTERNAL FUNCTIONALITY PURPOSE -->
+    <aura:attribute type="String" name="errorMsg" default=""/>
+    <aura:attribute type="Object" name="iconDetails"/> 
+    <aura:attribute name="searchResult" type="Object[]" />
+    
+    <!-- /ATTRIBUTES USED FOR INTERNAL FUNCTIONALITY PURPOSE -->
+    
+    <!-- EVENT HANDLER -->
+    <aura:handler event="c:ALJSErrorEvent" action="{!c.handlerError}" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <!-- /EVENT HANDLER -->
+	
+    <!-- CONTENT -->
+    <!-- We have tried using lightning:icon instead of separate component (c:svgIcon) to display SVGs.
+		 But, it disrupts the UI little bit and we ended up using svgIcon component. 
+		 This is the only reason behind explictly including static resource(slds_214) for SLDS despite of extending force:slds on app level.
+	-->
+    <div aura:id="formElem" class="slds-form-element slds-lookup slds-is-open" data-select="single">
+        <div class="slds-form-element__control slds-m-bottom--x-small">
+            <label class="slds-form-element__label"> 
+                <aura:if isTrue="{!v.isRequired}"><span class="slds-required" title="required">*</span> </aura:if>
+                <aura:if isTrue="{!!empty(v.fieldLabel)}">{!v.fieldLabel}</aura:if>
+            </label>
+            <div aura:id="InputSearch" class="slds-input-has-icon slds-input-has-icon--right">
+                <div aura:id="SearchTextIcon" class="">
+                    <c:svgIcon class="slds-input__icon slds-icon-text-default" xlinkHref="/resource/slds_214/assets/icons/utility-sprite/svg/symbols.svg#search" />                   
+                </div>
+                <div aura:id="clearSearchTextIcon" class="slds-hide" onclick="{!c.clearSearchText}">
+                    <c:svgIcon class="slds-input__icon slds-icon-text-default" xlinkHref="/resource/slds_214/assets/icons/utility-sprite/svg/symbols.svg#close" />  
+                </div>
+                <ui:inputText aura:id="typeahead-input" class="slds-lookup__search-input slds-input" 
+                              updateOn="keyup" placeholder="{!v.searchPlaceholder}" 
+                              value="{!v.selectedLabel}" keyup="{!c.onChangeSearchText}" focus="{!c.onFocusSearchText}"
+                              />
+            </div>
+            
+            <div aura:id="SelectedOption" class="slds-pill_container slds-hide">
+                <span class="slds-pill slds-size--1-of-1">
+                    <aura:If isTrue="{!!empty(v.iconDetails.iconName)}">
+                        <span class="slds-icon_container slds-pill__icon_container">
+                            <c:svgIcon colorCode="{!v.iconDetails.colorCode}" class="slds-icon slds-icon_small slds-pill__icon" xlinkHref="{!'/resource/slds_214/assets/icons/'+v.iconDetails.typeOfObj+'-sprite/svg/symbols.svg#'+v.iconDetails.iconName}" />
+                        </span>
+                    </aura:If>
+                    <span class="slds-pill__label" title="{!v.selectedLabel}">{!v.selectedLabel}</span>
+                    <button class="slds-input-has-icon slds-input-has-icon--right slds-button slds-button--icon slds-pill__remove" title="Remove" onclick="{!c.onCloseSelectedRecord}">
+                        <c:svgIcon class="slds-input__icon slds-icon-text-default" xlinkHref="/resource/slds_214/assets/icons/utility-sprite/svg/symbols.svg#close" />
+                        <span class="slds-assistive-text">Close</span>
+                    </button>     
+                </span>
+            </div>
+            <aura:if isTrue="{!!empty(v.errorMsg)}">
+                <div aura:id="error-message" class="slds-form-element__help">{!v.errorMsg}</div>
+            </aura:if>
+        </div>
+        <div aura:id="availableOptions" class="slds-hide">
+            <div class="slds-lookup__menu">
+                <ul class="slds-lookup__list" role="listbox">
+                    <aura:renderIf isTrue="{!v.searchResult.length > 0}">
+                        <!-- This span is to escape from known issue : 
+								https://salesforce.stackexchange.com/questions/71604/lightning-bug-in-lightning-framework-when-using-aurarenderif 
+						-->
+                        <SPAN>
+                        	<aura:iteration items="{!v.searchResult}" var="sr" indexVar="itemIndex">
+                                <li role="presentation" data-index="{!itemIndex}" 
+                                    onclick="{!c.onSelectRecord}">
+                                    <span class="slds-lookup__item-action slds-media slds-media--center" role="option">
+                                        <span class="slds-media__figure">
+                                            <span class="slds-icon-container">
+                                                <c:svgIcon colorCode="{!v.iconDetails.colorCode}" class="slds-icon slds-icon_small slds-pill__icon" xlinkHref="{!'/resource/slds_214/assets/icons/'+v.iconDetails.typeOfObj+'-sprite/svg/symbols.svg#'+v.iconDetails.iconName}" />
+                                            </span>
+                                        </span>
+                                        <div class="slds-media__body">
+                                            <div class="slds-lookup__result-text">
+                                                <mark>{!sr.label}</mark>
+                                            </div>
+                                        </div>
+                                    </span>
+                                </li>
+                            </aura:iteration>
+                        </SPAN>
+                        <aura:set attribute="else">
+                            <li role="presentation">
+                                <span class="slds-lookup__item-action slds-media slds-media--center" role="option">
+                                    <div class="slds-media__body">
+                                        <div class="slds-lookup__result-text">
+                                            <mark>No macthes found</mark>
+                                        </div>
+                                    </div>
+                                </span>
+                        	</li>
+                        </aura:set>
+                    </aura:renderIf>
+                </ul>
+            </div>
+        </div>
+    </div>  
+    <!-- CONTENT -->
+</aura:component>

@@ -1,0 +1,84 @@
+<aura:component controller="ContactController"
+                implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" 
+                access="global">
+    <!-- ATTRIBUTES -->
+    <aura:attribute name="contactWrap" type="Object"/>
+    <aura:attribute name="errorMsgs" type="String" default=""/> 
+    <aura:attribute name="successMsg" type="String" default=""/> 
+    <aura:attribute name="afterLoad" type="Boolean" default="false"/> 
+    <!-- /ATTRIBUTES --> 
+    
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<aura:registerEvent name="lookupErrorReq" type="c:ALJSErrorEvent"/> 
+
+    <!-- CONTENT -->
+    <div>
+        <aura:if isTrue="{!v.successMsg != ''}">
+            <div class="slds-notify_container slds-is-relative">
+                <div class="slds-notify slds-notify--toast slds-theme--success" role="alert">
+                    <span class="slds-assistive-text">Success</span>
+                    <button class="slds-button slds-notify__close slds-button--icon-inverse" title="Close">
+                        <c:svgIcon class="slds-button__icon slds-button__icon--large" xlinkHref="/resource/slds_214/assets/icons/utility-sprite/svg/symbols.svg#close" />
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <div class="slds-notify__content slds-grid">
+                        <c:svgIcon class="slds-icon slds-icon--small slds-m-right--small slds-col slds-no-flex" xlinkHref="/resource/slds_214/assets/icons/utility-sprite/svg/symbols.svg#notification" />
+                        <div class="slds-col slds-align-middle">
+                            <h2 class="slds-text-heading--small ">{!v.successMsg}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{!!empty(v.errorMsgs)}">
+            <div class="slds-p-around--small slds-size--1-of-1 slds-medium-size--3-of-3 slds-large-size--3-of-3">
+                <div class="slds-notify_container slds-is-relative">
+                    <div class="slds-notify slds-notify--alert slds-theme--error slds-theme--alert-texture" role="alert">
+                        <h2>
+                            {!v.errorMsgs}
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{!v.afterLoad}">
+            <div class="slds-card">
+                 <div class="slds-card__header">
+                    <div class="slds-grid slds-grid--vertical">
+                        <div class="slds-col slds-has-flexi-truncate">
+                            <div class="slds-media slds-no-space slds-media--center">
+                                <div class="slds-media__body">
+                                    <p class="slds-text-title--caps slds-line-height--reset">Lookup Demo</p>
+                                    <h1 class="slds-page-header__title slds-align-middle" title="Contact">Contact</h1>  
+                                </div>
+                            </div>
+                        </div>
+                    </div>  
+                 </div>
+                 <div class="slds-card__body">
+                     <div class="slds-grid slds-wrap slds-p-top--small slds-grid--vertical-stretch">
+                         <div class="slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--3-of-6 slds-large-size--6-of-12">
+                             <ui:inputText aura:id="ln" labelClass="slds-form-element__label" class="slds-input" label="Last Name" value="{!v.contactWrap.objCon.LastName}" />
+                         </div>
+                         <div class="slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--3-of-6 slds-large-size--6-of-12">
+                             <c:Typeahead fieldLabel="Account" 
+                                          objName="Account" 
+                                          selectedId="{!v.contactWrap.accLkp.id}" 
+                                          selectedLabel="{!v.contactWrap.accLkp.label}" 
+                                          lookupId="accLkp" 
+                                          isRequired="true"
+                                          /> 
+                         </div>
+                     </div>
+                 </div>
+                 <div class="slds-card__footer slds-p-vertical--large">
+                     <lightning:button variant="brand" label="Update" onclick="{!c.update}" />
+                 </div> 
+            </div>
+        </aura:if>
+    </div>
+    <div class="slds-hide" aura:id="spinner">
+        <lightning:spinner variant="brand" size="medium"  alternativeText="wait"/>
+    </div>
+    <!-- /CONTENT -->
+</aura:component>

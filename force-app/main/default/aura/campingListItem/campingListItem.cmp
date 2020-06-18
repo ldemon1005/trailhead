@@ -1,0 +1,16 @@
+<aura:component >
+    <aura:attribute name="item" type="Camping_Item__c"/>
+    
+    Name:
+    <lightning:outputField value="{!v.item.Name}"/>
+    
+    Price:
+    <lightning:outputField value="{!v.item.Price__c}"/>
+    
+    Quantity:
+    <lightning:outputField value="{!v.item.Quantity__c}"/>
+    
+    Packed:
+    <lightning:outputField value="{!v.item.Packed__c}"/>
+    
+</aura:component>

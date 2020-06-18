@@ -1,0 +1,7 @@
+<aura:component >
+    <aura:handler name="eventCmp" event="c:eventCmp"
+                  action="{!c.handlerEvent}"/>
+    <c:parentCmp>
+        <c:childCmp/>
+    </c:parentCmp>
+</aura:component>

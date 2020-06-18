@@ -1,0 +1,4 @@
+<aura:component>
+    <aura:registerEvent name="eventCmp" type="c:eventCmp"/>
+    <lightning:button label="fire event" onclick="{!c.fireEvent}"/>
+</aura:component>

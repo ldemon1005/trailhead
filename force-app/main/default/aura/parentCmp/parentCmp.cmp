@@ -1,0 +1,6 @@
+<!-- parent.cmp -->
+<aura:component>
+    <p>hello i'm parent</p>
+    <aura:handler name="eventCmp" event="c:eventCmp" action="{!c.handlerEvent}"/>
+    {!v.body}
+</aura:component>
